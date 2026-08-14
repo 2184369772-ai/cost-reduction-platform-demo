@@ -1,0 +1,4 @@
+project_code,title,factory_name,category,status,owner,estimated_savings,currency,start_date,target_date,description
+ALPHA-2026-101,LED Lighting Retrofit,Factory Alpha,Energy,Planned,Sophia Lane,66000,CNY,2026-08-01,2026-11-30,Synthetic lighting efficiency upgrade for warehouse aisles.
+BETA-2026-101,Scrap Bin Layout Reset,Factory Beta,Productivity,Active,Oliver Nash,28000,CNY,2026-07-15,2026-10-15,Synthetic 5S layout reset for less walking and faster scrap handling.
+GAMMA-2026-101,Return Pump Runtime Review,Factory Gamma,Energy,Planned,Chloe West,51000,CNY,2026-08-10,2026-12-10,Synthetic utility review with operator sign-off before execution.

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Bulk Import | Cost Reduction Platform Demo{% endblock %}
+{% block content %}
+<section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+    <p class="text-sm font-medium text-emerald-700">Bulk import</p>
+    <h2 class="mt-1 text-2xl font-semibold">Preview before writing to the ledger</h2>
+    <p class="mt-2 max-w-3xl text-sm text-stone-600">
+        Upload a synthetic CSV or XLSX file. The app validates required fields, date formats, numeric values, and duplicate rows against both the file and the existing SQLite data.
+    </p>
+
+    {% if upload_error %}
+    <div class="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{{ upload_error }}</div>
+    {% endif %}
+
+    <form method="post" action="/imports/preview" enctype="multipart/form-data" class="mt-6 rounded-2xl border border-dashed border-stone-300 bg-stone-50 p-6">
+        <label class="block">
+            <span class="text-sm font-medium">Import file</span>
+            <input type="file" name="file" accept=".csv,.xlsx" class="mt-3 block w-full text-sm">
+        </label>
+        <button class="mt-5 rounded-xl bg-slate-950 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">Preview import</button>
+    </form>
+
+    <div class="mt-6 rounded-2xl bg-stone-50 p-5 text-sm text-stone-600">
+        <p class="font-medium text-stone-900">Expected columns</p>
+        <p class="mt-2 font-mono text-xs">project_code, title, factory_name, category, status, owner, estimated_savings, currency, start_date, target_date, description</p>
+        <p class="mt-3">Supported factory names: Factory Alpha, Factory Beta, Factory Gamma.</p>
+    </div>
+</section>
+{% endblock %}
