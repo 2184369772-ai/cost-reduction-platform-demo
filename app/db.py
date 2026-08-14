@@ -10,89 +10,89 @@ DATA_DIR = BASE_DIR / "data"
 DB_PATH = DATA_DIR / "demo.db"
 
 FACTORIES = [
-    {"name": "Factory Alpha", "region": "East Campus", "code": "ALPHA"},
-    {"name": "Factory Beta", "region": "North Campus", "code": "BETA"},
-    {"name": "Factory Gamma", "region": "South Campus", "code": "GAMMA"},
+    {"name": "阿尔法工厂", "region": "东区园区", "code": "ALPHA"},
+    {"name": "贝塔工厂", "region": "北区园区", "code": "BETA"},
+    {"name": "伽马工厂", "region": "南区园区", "code": "GAMMA"},
 ]
 
 SEED_PROJECTS = [
     {
         "project_code": "ALPHA-2026-001",
-        "title": "Compressed Air Leak Sweep",
+        "title": "压缩空气漏点巡检整治",
         "factory_code": "ALPHA",
         "category": "Energy",
         "status": "Active",
-        "owner": "Iris Cole",
+        "owner": "林若安",
         "estimated_savings": 124000,
         "currency": "CNY",
         "start_date": "2026-01-15",
         "target_date": "2026-10-30",
-        "description": "Synthetic initiative to reduce utility loss by repairing compressed air leaks in packaging and assembly areas.",
+        "description": "Synthetic Data 项目：针对包装区与装配区压缩空气漏点开展虚构巡检与修复，演示公辅损失治理流程。",
     },
     {
         "project_code": "ALPHA-2026-002",
-        "title": "Packaging Film Width Optimization",
+        "title": "包装膜宽度标准化优化",
         "factory_code": "ALPHA",
         "category": "Material",
         "status": "Planned",
-        "owner": "Noah Grant",
+        "owner": "周柏宁",
         "estimated_savings": 86000,
         "currency": "CNY",
         "start_date": "2026-03-01",
         "target_date": "2026-11-15",
-        "description": "Synthetic film consumption reduction trial through width standardization and scrap controls.",
+        "description": "Synthetic Data 项目：通过膜宽标准化与边角损耗控制，演示虚构材料降耗试点。",
     },
     {
         "project_code": "BETA-2026-001",
-        "title": "Forklift Route Redesign",
+        "title": "叉车动线重排优化",
         "factory_code": "BETA",
         "category": "Logistics",
         "status": "Completed",
-        "owner": "Mia Turner",
+        "owner": "顾清和",
         "estimated_savings": 57000,
         "currency": "CNY",
         "start_date": "2026-02-10",
         "target_date": "2026-06-30",
-        "description": "Synthetic logistics project that shortens internal travel distance and reduces handling wait time.",
+        "description": "Synthetic Data 项目：通过虚构物流动线重排，演示缩短厂内搬运距离与等待时间的效果。",
     },
     {
         "project_code": "BETA-2026-002",
-        "title": "Cooling Water Setpoint Review",
+        "title": "冷却水设定值复核",
         "factory_code": "BETA",
         "category": "Energy",
         "status": "Active",
-        "owner": "Luca Reed",
+        "owner": "程意舟",
         "estimated_savings": 142000,
         "currency": "CNY",
         "start_date": "2026-04-05",
         "target_date": "2026-12-20",
-        "description": "Synthetic utility optimization review with operator approval checkpoints built into execution.",
+        "description": "Synthetic Data 项目：围绕公辅运行策略做虚构复核，并保留操作确认节点以演示执行边界。",
     },
     {
         "project_code": "GAMMA-2026-001",
-        "title": "Returnable Pallet Expansion",
+        "title": "可循环托盘覆盖扩展",
         "factory_code": "GAMMA",
         "category": "Material",
         "status": "Active",
-        "owner": "Ava Brooks",
+        "owner": "沈知夏",
         "estimated_savings": 93000,
         "currency": "CNY",
         "start_date": "2026-05-12",
         "target_date": "2026-09-30",
-        "description": "Synthetic packaging reuse initiative expanding returnable pallets between warehouse and line-side staging.",
+        "description": "Synthetic Data 项目：扩展虚构仓储与线边周转的循环托盘使用场景，演示包装复用管理。",
     },
     {
         "project_code": "GAMMA-2026-002",
-        "title": "Changeover Checklist Simplification",
+        "title": "换线检查清单精简",
         "factory_code": "GAMMA",
         "category": "Productivity",
         "status": "On Hold",
-        "owner": "Ethan Vale",
+        "owner": "许闻川",
         "estimated_savings": 41000,
         "currency": "CNY",
         "start_date": "2026-06-08",
         "target_date": "2026-12-05",
-        "description": "Synthetic procedural simplification project focused on shorter line changeover preparation.",
+        "description": "Synthetic Data 项目：针对虚构换线准备流程做步骤精简，演示效率提升类台账项目。",
     },
 ]
 
@@ -207,7 +207,16 @@ def factory_lookup() -> dict[int, dict[str, Any]]:
 
 
 def factory_lookup_by_name() -> dict[str, sqlite3.Row]:
-    return {row["name"].lower(): row for row in list_factories()}
+    mapping: dict[str, sqlite3.Row] = {}
+    legacy_names = {
+        "ALPHA": "Factory Alpha",
+        "BETA": "Factory Beta",
+        "GAMMA": "Factory Gamma",
+    }
+    for row in list_factories():
+        mapping[row["name"].lower()] = row
+        mapping[legacy_names[row["code"]].lower()] = row
+    return mapping
 
 
 def category_options() -> list[str]:

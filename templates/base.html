@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Cost Reduction Platform Demo{% endblock %}</title>
+    <title>{% block title %}降本项目管理 Demo{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/static/app.css">
 </head>
@@ -12,17 +12,17 @@
         <header class="bg-slate-950 text-white shadow-lg">
             <div class="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-6 md:flex-row md:items-end md:justify-between">
                 <div>
-                    <p class="text-xs uppercase tracking-[0.35em] text-amber-300">Public Synthetic Demo</p>
-                    <h1 class="mt-2 text-3xl font-semibold">Cost Reduction Platform Demo</h1>
+                    <p class="text-xs uppercase tracking-[0.35em] text-amber-300">公开演示 · Public Synthetic Demo</p>
+                    <h1 class="mt-2 text-3xl font-semibold">降本项目管理 <span class="text-amber-300">Demo</span></h1>
                     <p class="mt-2 max-w-3xl text-sm text-slate-300">
-                        Public reimplementation using synthetic data only. No proprietary code, internal data, confidential materials, or company-specific assets are included.
+                        中文主界面 + 英文专业标签的公开 Demo。全部内容仅使用 <span class="font-medium text-amber-200">Synthetic Data</span>，用于展示降本项目台账、<span class="font-medium">Batch Import</span>、<span class="font-medium">Deduplication</span> 与数据治理思路。
                     </p>
                 </div>
                 <nav class="flex flex-wrap gap-2 text-sm">
-                    <a class="rounded-full border border-slate-700 px-4 py-2 hover:bg-slate-800" href="/">Dashboard</a>
-                    <a class="rounded-full border border-slate-700 px-4 py-2 hover:bg-slate-800" href="/projects">Project Ledger</a>
-                    <a class="rounded-full border border-slate-700 px-4 py-2 hover:bg-slate-800" href="/projects/new">New Project</a>
-                    <a class="rounded-full border border-slate-700 px-4 py-2 hover:bg-slate-800" href="/imports">Bulk Import</a>
+                    <a class="rounded-full border border-slate-700 px-4 py-2 hover:bg-slate-800" href="/">概览</a>
+                    <a class="rounded-full border border-slate-700 px-4 py-2 hover:bg-slate-800" href="/projects">项目台账</a>
+                    <a class="rounded-full border border-slate-700 px-4 py-2 hover:bg-slate-800" href="/projects/new">新建项目</a>
+                    <a class="rounded-full border border-slate-700 px-4 py-2 hover:bg-slate-800" href="/imports">批量导入</a>
                 </nav>
             </div>
         </header>

@@ -1,4 +1,4 @@
 project_code,title,factory_name,category,status,owner,estimated_savings,currency,start_date,target_date,description
-ALPHA-2026-101,LED Lighting Retrofit,Factory Alpha,Energy,Planned,Sophia Lane,66000,CNY,2026-08-01,2026-11-30,Synthetic lighting efficiency upgrade for warehouse aisles.
-BETA-2026-101,Scrap Bin Layout Reset,Factory Beta,Productivity,Active,Oliver Nash,28000,CNY,2026-07-15,2026-10-15,Synthetic 5S layout reset for less walking and faster scrap handling.
-GAMMA-2026-101,Return Pump Runtime Review,Factory Gamma,Energy,Planned,Chloe West,51000,CNY,2026-08-10,2026-12-10,Synthetic utility review with operator sign-off before execution.
+ALPHA-2026-101,仓库照明改造试点,阿尔法工厂,能源,计划中,宋予衡,66000,CNY,2026-08-01,2026-11-30,Synthetic Data 项目：演示仓库通道照明效率提升的虚构试点。
+BETA-2026-101,废料箱布局重整,贝塔工厂,效率,进行中,陆知远,28000,CNY,2026-07-15,2026-10-15,Synthetic Data 项目：通过虚构 5S 布局重整减少走动距离与废料处理等待。
+GAMMA-2026-101,回水泵运行策略复核,伽马工厂,能源,计划中,顾念初,51000,CNY,2026-08-10,2026-12-10,Synthetic Data 项目：演示带操作确认节点的虚构公辅优化复核。

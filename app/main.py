@@ -34,7 +34,7 @@ from app.db import (
 BASE_DIR = Path(__file__).resolve().parent.parent
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 
-app = FastAPI(title="Cost Reduction Platform Demo")
+app = FastAPI(title="降本项目管理 Demo")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
 ALLOWED_EXTENSIONS = {".csv", ".xlsx"}
@@ -52,6 +52,22 @@ REQUIRED_HEADERS = [
     "description",
 ]
 
+CATEGORY_LABELS = {
+    "Energy": "能源",
+    "Material": "材料",
+    "Logistics": "物流",
+    "Productivity": "效率",
+    "Quality": "质量",
+}
+STATUS_LABELS = {
+    "Planned": "计划中",
+    "Active": "进行中",
+    "On Hold": "暂缓",
+    "Completed": "已完成",
+}
+CATEGORY_INPUT_MAP = {**{key: key for key in CATEGORY_LABELS}, **{value: key for key, value in CATEGORY_LABELS.items()}}
+STATUS_INPUT_MAP = {**{key: key for key in STATUS_LABELS}, **{value: key for key, value in STATUS_LABELS.items()}}
+
 
 @app.on_event("startup")
 def startup() -> None:
@@ -64,6 +80,8 @@ def render(request: Request, template_name: str, context: dict[str, Any]) -> HTM
         "factories": list_factories(),
         "filters": project_filters(),
         "today": today_iso(),
+        "category_labels": CATEGORY_LABELS,
+        "status_labels": STATUS_LABELS,
     }
     base_context.update(context)
     return templates.TemplateResponse(template_name, base_context)
@@ -73,7 +91,7 @@ def parse_money(value: str) -> float:
     cleaned = str(value).replace(",", "").strip()
     amount = float(cleaned)
     if amount < 0:
-        raise ValueError("Estimated savings must be zero or positive.")
+        raise ValueError("预计收益必须大于或等于 0。")
     return amount
 
 
@@ -81,7 +99,15 @@ def parse_date(value: str, field_label: str) -> str:
     try:
         return datetime.strptime(str(value).strip(), "%Y-%m-%d").date().isoformat()
     except ValueError as exc:
-        raise ValueError(f"{field_label} must use YYYY-MM-DD format.") from exc
+        raise ValueError(f"{field_label} 必须使用 YYYY-MM-DD 格式。") from exc
+
+
+def normalize_category(value: str) -> str:
+    return CATEGORY_INPUT_MAP.get(value.strip(), value.strip())
+
+
+def normalize_status(value: str) -> str:
+    return STATUS_INPUT_MAP.get(value.strip(), value.strip())
 
 
 def collect_form_payload(
@@ -102,38 +128,38 @@ def collect_form_payload(
         "project_code": project_code.strip(),
         "title": title.strip(),
         "factory_id": factory_id,
-        "category": category.strip(),
-        "status": status.strip(),
+        "category": normalize_category(category),
+        "status": normalize_status(status),
         "owner": owner.strip(),
         "currency": currency.strip().upper() or "CNY",
         "description": description.strip(),
     }
     for field, label in [
-        ("project_code", "Project code"),
-        ("title", "Title"),
-        ("owner", "Owner"),
-        ("description", "Description"),
+        ("project_code", "项目编号"),
+        ("title", "项目名称"),
+        ("owner", "负责人"),
+        ("description", "项目说明"),
     ]:
         if not payload[field]:
-            errors.append(f"{label} is required.")
+            errors.append(f"{label}不能为空。")
     if payload["category"] not in category_options():
-        errors.append("Category is invalid.")
+        errors.append("分类无效，请从预设选项中选择。")
     if payload["status"] not in status_options():
-        errors.append("Status is invalid.")
+        errors.append("状态无效，请从预设选项中选择。")
     try:
         payload["estimated_savings"] = parse_money(estimated_savings)
     except ValueError as exc:
         errors.append(str(exc))
     try:
-        payload["start_date"] = parse_date(start_date, "Start date")
+        payload["start_date"] = parse_date(start_date, "开始日期")
     except ValueError as exc:
         errors.append(str(exc))
     try:
-        payload["target_date"] = parse_date(target_date, "Target date")
+        payload["target_date"] = parse_date(target_date, "目标日期")
     except ValueError as exc:
         errors.append(str(exc))
     if not errors and payload["target_date"] < payload["start_date"]:
-        errors.append("Target date must be on or after start date.")
+        errors.append("目标日期不能早于开始日期。")
     return payload, errors
 
 
@@ -144,7 +170,7 @@ def normalize_header(value: Any) -> str:
 def parse_upload(filename: str, content: bytes) -> list[dict[str, Any]]:
     suffix = Path(filename).suffix.lower()
     if suffix not in ALLOWED_EXTENSIONS:
-        raise ValueError("Only CSV and XLSX files are supported.")
+        raise ValueError("仅支持 CSV 和 XLSX 文件。")
     if suffix == ".csv":
         stream = io.StringIO(content.decode("utf-8-sig"))
         reader = csv.DictReader(stream)
@@ -185,14 +211,16 @@ def validate_import_rows(raw_rows: list[dict[str, Any]]) -> tuple[list[dict[str,
         factory_name_key = normalized["factory_name"].lower()
         factory = factories_by_name.get(factory_name_key)
         if not factory:
-            errors.append("Factory name must be one of Factory Alpha, Factory Beta, or Factory Gamma.")
+            errors.append("工厂名称必须是阿尔法工厂、贝塔工厂、伽马工厂，或兼容旧模板中的 Factory Alpha / Beta / Gamma。")
+        normalized["category"] = normalize_category(normalized["category"])
+        normalized["status"] = normalize_status(normalized["status"])
         if normalized["category"] not in category_options():
-            errors.append("Category is invalid.")
+            errors.append("分类无效，请检查导入文件中的 category 值。")
         if normalized["status"] not in status_options():
-            errors.append("Status is invalid.")
+            errors.append("状态无效，请检查导入文件中的 status 值。")
         for field in REQUIRED_HEADERS:
             if not normalized[field]:
-                errors.append(f"{field} is required.")
+                errors.append(f"{field} 不能为空。")
 
         parsed_amount = None
         parsed_start = normalized["start_date"]
@@ -204,28 +232,28 @@ def validate_import_rows(raw_rows: list[dict[str, Any]]) -> tuple[list[dict[str,
                 errors.append(str(exc))
         if normalized["start_date"]:
             try:
-                parsed_start = parse_date(normalized["start_date"], "Start date")
+                parsed_start = parse_date(normalized["start_date"], "开始日期")
             except ValueError as exc:
                 errors.append(str(exc))
         if normalized["target_date"]:
             try:
-                parsed_target = parse_date(normalized["target_date"], "Target date")
+                parsed_target = parse_date(normalized["target_date"], "目标日期")
             except ValueError as exc:
                 errors.append(str(exc))
         if normalized["start_date"] and normalized["target_date"] and parsed_target < parsed_start:
-            errors.append("Target date must be on or after start date.")
+            errors.append("目标日期不能早于开始日期。")
 
         factory_id = int(factory["id"]) if factory else None
         title_key = normalized["title"].strip().lower()
         code_key = normalized["project_code"].strip().upper()
         if code_key in seen_codes:
-            errors.append("Duplicate project code found within the import file.")
+            errors.append("导入文件内存在重复的项目编号。")
         if factory_id and (title_key, factory_id) in seen_title_factory:
-            errors.append("Duplicate title found within the same factory in the import file.")
+            errors.append("同一工厂内存在重复的项目名称。")
         if code_key and project_exists_by_code(code_key):
-            errors.append("Project code already exists in the database.")
+            errors.append("项目编号已存在于 SQLite 台账中。")
         if factory_id and normalized["title"] and project_exists_by_title_factory(normalized["title"], factory_id):
-            errors.append("A project with the same title already exists in this factory.")
+            errors.append("该工厂下已存在同名项目。")
 
         if code_key:
             seen_codes.add(code_key)
@@ -253,6 +281,7 @@ def validate_import_rows(raw_rows: list[dict[str, Any]]) -> tuple[list[dict[str,
                 "data": normalized,
                 "errors": errors,
                 "can_import": can_import,
+                "validation_state": "valid" if can_import else ("duplicate" if any("重复" in error or "已存在" in error for error in errors) else "review"),
                 "normalized": normalized_payload,
             }
         )
@@ -330,9 +359,9 @@ def project_create(
         description,
     )
     if not errors and project_exists_by_code(payload["project_code"]):
-        errors.append("Project code already exists.")
+        errors.append("项目编号已存在。")
     if not errors and project_exists_by_title_factory(payload["title"], payload["factory_id"]):
-        errors.append("A project with the same title already exists in this factory.")
+        errors.append("该工厂下已存在同名项目。")
     if errors:
         return render(request, "project_form.html", {"mode": "create", "errors": errors, "form": payload})
     project_id = create_project(payload)
@@ -343,7 +372,7 @@ def project_create(
 def project_detail(request: Request, project_id: int) -> HTMLResponse:
     project = get_project(project_id)
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise HTTPException(status_code=404, detail="未找到项目")
     return render(request, "project_detail.html", {"project": project})
 
 
@@ -351,7 +380,7 @@ def project_detail(request: Request, project_id: int) -> HTMLResponse:
 def project_edit(request: Request, project_id: int) -> HTMLResponse:
     project = get_project(project_id)
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise HTTPException(status_code=404, detail="未找到项目")
     return render(request, "project_form.html", {"mode": "edit", "errors": [], "form": project, "project_id": project_id})
 
 
@@ -385,9 +414,9 @@ def project_update(
         description,
     )
     if not errors and project_exists_by_code(payload["project_code"], exclude_id=project_id):
-        errors.append("Project code already exists.")
+        errors.append("项目编号已存在。")
     if not errors and project_exists_by_title_factory(payload["title"], payload["factory_id"], exclude_id=project_id):
-        errors.append("A project with the same title already exists in this factory.")
+        errors.append("该工厂下已存在同名项目。")
     if errors:
         return render(
             request,
@@ -427,7 +456,7 @@ async def import_preview(request: Request, file: UploadFile = File(...)) -> HTML
 def import_confirm(request: Request, batch_id: str) -> HTMLResponse:
     batch = get_import_batch(batch_id)
     if not batch:
-        raise HTTPException(status_code=404, detail="Import batch not found")
+        raise HTTPException(status_code=404, detail="未找到导入批次")
     if batch["summary"]["invalid"] > 0:
         return render(
             request,
@@ -435,7 +464,7 @@ def import_confirm(request: Request, batch_id: str) -> HTMLResponse:
             {
                 "batch": batch,
                 "factory_map": factory_lookup(),
-                "confirm_error": "This batch still contains invalid rows. Please fix the file and upload again.",
+                "confirm_error": "当前批次仍包含不可导入的数据行，请修正文件后重新上传。",
             },
         )
     inserted = confirm_import_batch(batch_id)
@@ -445,6 +474,6 @@ def import_confirm(request: Request, batch_id: str) -> HTMLResponse:
         {
             "batch": get_import_batch(batch_id),
             "factory_map": factory_lookup(),
-            "confirm_success": f"Imported {inserted} synthetic projects successfully.",
+            "confirm_success": f"已成功导入 {inserted} 条 Synthetic Data 项目。",
         },
     )

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ project.title }} | Cost Reduction Platform Demo{% endblock %}
+{% block title %}{{ project.title }} | 降本项目管理 Demo{% endblock %}
 {% block content %}
 <section class="grid gap-6 lg:grid-cols-[1.3fr,0.7fr]">
     <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
@@ -9,46 +9,46 @@
                 <h2 class="mt-1 text-3xl font-semibold">{{ project.title }}</h2>
                 <p class="mt-2 text-sm text-stone-600">{{ project.description }}</p>
             </div>
-            <a href="/projects/{{ project.id }}/edit" class="rounded-xl bg-slate-950 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">Edit</a>
+            <a href="/projects/{{ project.id }}/edit" class="rounded-xl bg-slate-950 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">编辑项目</a>
         </div>
 
         <div class="mt-8 grid gap-4 md:grid-cols-2">
             <div class="rounded-2xl bg-stone-50 p-4">
-                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Factory</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">工厂</p>
                 <p class="mt-2 text-lg font-semibold">{{ project.factory_name }}</p>
                 <p class="text-sm text-stone-600">{{ project.factory_region }}</p>
             </div>
             <div class="rounded-2xl bg-stone-50 p-4">
-                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Owner</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">负责人</p>
                 <p class="mt-2 text-lg font-semibold">{{ project.owner }}</p>
-                <p class="text-sm text-stone-600">Synthetic demo contact</p>
+                <p class="text-sm text-stone-600">Synthetic Data 虚构负责人</p>
             </div>
             <div class="rounded-2xl bg-stone-50 p-4">
-                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Category</p>
-                <p class="mt-2 text-lg font-semibold">{{ project.category }}</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">分类</p>
+                <p class="mt-2 text-lg font-semibold">{{ category_labels.get(project.category, project.category) }}</p>
             </div>
             <div class="rounded-2xl bg-stone-50 p-4">
-                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Status</p>
-                <p class="mt-2 text-lg font-semibold">{{ project.status }}</p>
+                <p class="text-xs uppercase tracking-[0.2em] text-stone-500">状态</p>
+                <p class="mt-2 text-lg font-semibold">{{ status_labels.get(project.status, project.status) }}</p>
             </div>
         </div>
     </article>
 
     <aside class="space-y-6">
         <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-            <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Estimated Savings</p>
+            <p class="text-xs uppercase tracking-[0.2em] text-stone-500">预计收益</p>
             <p class="mt-3 text-4xl font-semibold">¥{{ "{:,.0f}".format(project.estimated_savings) }}</p>
-            <p class="mt-2 text-sm text-stone-600">Synthetic amount for public demo purposes.</p>
+            <p class="mt-2 text-sm text-stone-600">用于公开 Demo 展示的 Synthetic Data 金额。</p>
         </article>
         <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-            <p class="text-xs uppercase tracking-[0.2em] text-stone-500">Timeline</p>
+            <p class="text-xs uppercase tracking-[0.2em] text-stone-500">时间计划</p>
             <dl class="mt-3 space-y-3 text-sm">
                 <div class="flex items-center justify-between">
-                    <dt class="text-stone-500">Start</dt>
+                    <dt class="text-stone-500">开始</dt>
                     <dd>{{ project.start_date }}</dd>
                 </div>
                 <div class="flex items-center justify-between">
-                    <dt class="text-stone-500">Target</dt>
+                    <dt class="text-stone-500">目标</dt>
                     <dd>{{ project.target_date }}</dd>
                 </div>
             </dl>

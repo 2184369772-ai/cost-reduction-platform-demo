@@ -1,36 +1,36 @@
 {% extends "base.html" %}
-{% block title %}Dashboard | Cost Reduction Platform Demo{% endblock %}
+{% block title %}概览 | 降本项目管理 Demo{% endblock %}
 {% block content %}
 <section class="mb-8 flex flex-col gap-4 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200 md:flex-row md:items-center md:justify-between">
     <div>
-        <p class="text-sm font-medium text-emerald-700">V1 scope</p>
-        <h2 class="mt-1 text-2xl font-semibold">Synthetic cost reduction dashboard</h2>
+        <p class="text-sm font-medium text-emerald-700">V1 范围 · Data Governance</p>
+        <h2 class="mt-1 text-2xl font-semibold">降本项目概览与工厂隔离演示</h2>
         <p class="mt-2 max-w-2xl text-sm text-stone-600">
-            Switch factories to demonstrate simple data isolation between Factory Alpha, Factory Beta, and Factory Gamma.
+            切换工厂可演示阿尔法工厂、贝塔工厂、伽马工厂之间的简单数据隔离，同时体现台账管理与 Data Migration 展示场景。
         </p>
     </div>
     <form method="get" action="/" class="flex gap-3">
         <select name="factory_id" class="rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
-            <option value="">All factories</option>
+            <option value="">全部工厂</option>
             {% for factory in factories %}
             <option value="{{ factory.id }}" {% if selected_factory_id == factory.id %}selected{% endif %}>{{ factory.name }}</option>
             {% endfor %}
         </select>
-        <button class="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-medium text-white hover:bg-emerald-800">Apply</button>
+        <button class="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-medium text-white hover:bg-emerald-800">应用筛选</button>
     </form>
 </section>
 
 <section class="grid gap-4 md:grid-cols-3">
     <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-        <p class="text-sm text-stone-500">Projects</p>
+        <p class="text-sm text-stone-500">项目数量</p>
         <p class="mt-2 text-4xl font-semibold">{{ summary.total_projects }}</p>
     </article>
     <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-        <p class="text-sm text-stone-500">Estimated Savings</p>
+        <p class="text-sm text-stone-500">预计收益</p>
         <p class="mt-2 text-4xl font-semibold">¥{{ "{:,.0f}".format(summary.total_savings) }}</p>
     </article>
     <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-        <p class="text-sm text-stone-500">Active Status Types</p>
+        <p class="text-sm text-stone-500">状态类型数</p>
         <p class="mt-2 text-4xl font-semibold">{{ summary.status_breakdown|length }}</p>
     </article>
 </section>
@@ -38,17 +38,17 @@
 <section class="mt-8 grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
     <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
         <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold">Recent Projects</h3>
-            <a href="/projects" class="text-sm font-medium text-emerald-700">Open ledger</a>
+            <h3 class="text-lg font-semibold">最近项目</h3>
+            <a href="/projects" class="text-sm font-medium text-emerald-700">查看台账</a>
         </div>
         <div class="mt-4 overflow-x-auto">
             <table class="min-w-full text-left text-sm">
                 <thead class="text-stone-500">
                     <tr>
-                        <th class="pb-3">Code</th>
-                        <th class="pb-3">Title</th>
-                        <th class="pb-3">Factory</th>
-                        <th class="pb-3">Status</th>
+                        <th class="pb-3">编号</th>
+                        <th class="pb-3">项目名称</th>
+                        <th class="pb-3">工厂</th>
+                        <th class="pb-3">状态</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,7 +57,7 @@
                         <td class="py-3 font-medium">{{ project.project_code }}</td>
                         <td class="py-3"><a class="text-emerald-700 hover:underline" href="/projects/{{ project.id }}">{{ project.title }}</a></td>
                         <td class="py-3">{{ project.factory_name }}</td>
-                        <td class="py-3">{{ project.status }}</td>
+                        <td class="py-3">{{ status_labels.get(project.status, project.status) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -67,12 +67,12 @@
 
     <div class="space-y-6">
         <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-            <h3 class="text-lg font-semibold">Status Breakdown</h3>
+            <h3 class="text-lg font-semibold">状态分布</h3>
             <div class="mt-4 space-y-3">
                 {% for row in summary.status_breakdown %}
                 <div>
                     <div class="mb-1 flex items-center justify-between text-sm">
-                        <span>{{ row.status }}</span>
+                        <span>{{ status_labels.get(row.status, row.status) }}</span>
                         <span>{{ row.count }}</span>
                     </div>
                     <div class="h-2 rounded-full bg-stone-100">
@@ -84,15 +84,15 @@
         </article>
 
         <article class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-            <h3 class="text-lg font-semibold">Factory Isolation Demo</h3>
+            <h3 class="text-lg font-semibold">工厂隔离演示</h3>
             <div class="mt-4 space-y-4">
                 {% for row in summary.factory_breakdown %}
                 <div class="rounded-2xl bg-stone-50 p-4">
                     <div class="flex items-center justify-between">
                         <p class="font-medium">{{ row.name }}</p>
-                        <p class="text-sm text-stone-500">{{ row.count }} projects</p>
+                        <p class="text-sm text-stone-500">{{ row.count }} 个项目</p>
                     </div>
-                    <p class="mt-1 text-sm text-stone-600">Synthetic savings: ¥{{ "{:,.0f}".format(row.total_savings) }}</p>
+                    <p class="mt-1 text-sm text-stone-600">Synthetic Data 预计收益：¥{{ "{:,.0f}".format(row.total_savings) }}</p>
                 </div>
                 {% endfor %}
             </div>
