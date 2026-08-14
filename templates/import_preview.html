@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Import Preview | Cost Reduction Platform Demo{% endblock %}
+{% block title %}导入预览 | 降本项目管理 Demo{% endblock %}
 {% block content %}
 <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-            <p class="text-sm font-medium text-emerald-700">Preview</p>
+            <p class="text-sm font-medium text-emerald-700">导入预览 · Preview</p>
             <h2 class="mt-1 text-2xl font-semibold">{{ batch.filename }}</h2>
-            <p class="mt-2 text-sm text-stone-600">Only valid rows can be imported. Invalid rows must be fixed and uploaded again.</p>
+            <p class="mt-2 text-sm text-stone-600">只有可导入的数据行才能写入台账。存在问题的数据需修正后重新上传。</p>
         </div>
         <div class="flex gap-3">
-            <a href="/imports" class="rounded-xl border border-stone-300 px-5 py-3 text-sm font-medium hover:bg-stone-50">Upload another file</a>
+            <a href="/imports" class="rounded-xl border border-stone-300 px-5 py-3 text-sm font-medium hover:bg-stone-50">重新上传文件</a>
             <form method="post" action="/imports/{{ batch.id }}/confirm">
                 <button {% if batch.summary.invalid > 0 or batch.confirmed_at %}disabled{% endif %} class="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-medium text-white enabled:hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-stone-300">
-                    {% if batch.confirmed_at %}Already imported{% else %}Confirm import{% endif %}
+                    {% if batch.confirmed_at %}已完成导入{% else %}确认导入{% endif %}
                 </button>
             </form>
         </div>
@@ -27,15 +27,15 @@
 
     <div class="mt-6 grid gap-4 md:grid-cols-3">
         <article class="rounded-2xl bg-stone-50 p-5">
-            <p class="text-sm text-stone-500">Rows scanned</p>
+            <p class="text-sm text-stone-500">扫描行数</p>
             <p class="mt-2 text-3xl font-semibold">{{ batch.summary.total }}</p>
         </article>
         <article class="rounded-2xl bg-emerald-50 p-5">
-            <p class="text-sm text-emerald-700">Valid rows</p>
+            <p class="text-sm text-emerald-700">可导入</p>
             <p class="mt-2 text-3xl font-semibold text-emerald-800">{{ batch.summary.valid }}</p>
         </article>
         <article class="rounded-2xl bg-rose-50 p-5">
-            <p class="text-sm text-rose-700">Invalid rows</p>
+            <p class="text-sm text-rose-700">需检查</p>
             <p class="mt-2 text-3xl font-semibold text-rose-800">{{ batch.summary.invalid }}</p>
         </article>
     </div>
@@ -44,11 +44,11 @@
         <table class="min-w-full text-left text-sm">
             <thead class="text-stone-500">
                 <tr>
-                    <th class="pb-3">Row</th>
-                    <th class="pb-3">Project</th>
-                    <th class="pb-3">Factory</th>
-                    <th class="pb-3">Status</th>
-                    <th class="pb-3">Validation</th>
+                    <th class="pb-3">行号</th>
+                    <th class="pb-3">项目</th>
+                    <th class="pb-3">工厂</th>
+                    <th class="pb-3">状态</th>
+                    <th class="pb-3">校验结果</th>
                 </tr>
             </thead>
             <tbody>
@@ -60,11 +60,18 @@
                         <p class="text-xs text-stone-500">{{ row.data.project_code }}</p>
                     </td>
                     <td class="py-4">{{ row.data.factory_name }}</td>
-                    <td class="py-4">{{ row.data.status }}</td>
+                    <td class="py-4">{{ status_labels.get(row.data.status, row.data.status) }}</td>
                     <td class="py-4">
                         {% if row.can_import %}
-                        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">Ready to import</span>
+                        <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">可导入</span>
                         {% else %}
+                        <div class="mb-2">
+                            {% if row.validation_state == "duplicate" %}
+                            <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">重复</span>
+                            {% else %}
+                            <span class="rounded-full bg-rose-100 px-3 py-1 text-xs font-medium text-rose-700">需检查</span>
+                            {% endif %}
+                        </div>
                         <ul class="list-disc space-y-1 pl-5 text-rose-700">
                             {% for error in row.errors %}
                             <li>{{ error }}</li>

@@ -1,35 +1,35 @@
 {% extends "base.html" %}
-{% block title %}Project Ledger | Cost Reduction Platform Demo{% endblock %}
+{% block title %}项目台账 | 降本项目管理 Demo{% endblock %}
 {% block content %}
 <section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
     <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-            <p class="text-sm font-medium text-emerald-700">Project ledger</p>
-            <h2 class="mt-1 text-2xl font-semibold">Search and filter synthetic projects</h2>
+            <p class="text-sm font-medium text-emerald-700">项目台账 · Data Governance</p>
+            <h2 class="mt-1 text-2xl font-semibold">搜索、筛选并查看 Synthetic Data 项目</h2>
         </div>
-        <a href="/projects/new" class="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-medium text-white hover:bg-emerald-800">Add project</a>
+        <a href="/projects/new" class="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-medium text-white hover:bg-emerald-800">新建项目</a>
     </div>
     <form method="get" action="/projects" class="mt-6 grid gap-3 lg:grid-cols-5">
-        <input type="text" name="q" value="{{ query.q }}" placeholder="Search code, title, owner" class="rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm lg:col-span-2">
+        <input type="text" name="q" value="{{ query.q }}" placeholder="搜索项目编号、项目名称、负责人" class="rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm lg:col-span-2">
         <select name="factory_id" class="rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
-            <option value="">All factories</option>
+            <option value="">全部工厂</option>
             {% for factory in factories %}
             <option value="{{ factory.id }}" {% if query.factory_id == factory.id|string %}selected{% endif %}>{{ factory.name }}</option>
             {% endfor %}
         </select>
         <select name="status" class="rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
-            <option value="">All statuses</option>
+            <option value="">全部状态</option>
             {% for status in filters.statuses %}
-            <option value="{{ status }}" {% if query.status == status %}selected{% endif %}>{{ status }}</option>
+            <option value="{{ status }}" {% if query.status == status %}selected{% endif %}>{{ status_labels.get(status, status) }}</option>
             {% endfor %}
         </select>
         <select name="category" class="rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
-            <option value="">All categories</option>
+            <option value="">全部分类</option>
             {% for category in filters.categories %}
-            <option value="{{ category }}" {% if query.category == category %}selected{% endif %}>{{ category }}</option>
+            <option value="{{ category }}" {% if query.category == category %}selected{% endif %}>{{ category_labels.get(category, category) }}</option>
             {% endfor %}
         </select>
-        <button class="rounded-xl bg-slate-950 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">Apply filters</button>
+        <button class="rounded-xl bg-slate-950 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">应用筛选</button>
     </form>
 </section>
 
@@ -38,12 +38,12 @@
         <table class="min-w-full text-left text-sm">
             <thead class="bg-stone-50 text-stone-500">
                 <tr>
-                    <th class="px-6 py-4">Project</th>
-                    <th class="px-6 py-4">Factory</th>
-                    <th class="px-6 py-4">Category</th>
-                    <th class="px-6 py-4">Status</th>
-                    <th class="px-6 py-4">Owner</th>
-                    <th class="px-6 py-4">Estimated Savings</th>
+                    <th class="px-6 py-4">项目</th>
+                    <th class="px-6 py-4">工厂</th>
+                    <th class="px-6 py-4">分类</th>
+                    <th class="px-6 py-4">状态</th>
+                    <th class="px-6 py-4">负责人</th>
+                    <th class="px-6 py-4">预计收益</th>
                     <th class="px-6 py-4"></th>
                 </tr>
             </thead>
@@ -55,17 +55,17 @@
                         <p class="text-xs text-stone-500">{{ project.project_code }}</p>
                     </td>
                     <td class="px-6 py-4">{{ project.factory_name }}</td>
-                    <td class="px-6 py-4">{{ project.category }}</td>
-                    <td class="px-6 py-4">{{ project.status }}</td>
+                    <td class="px-6 py-4">{{ category_labels.get(project.category, project.category) }}</td>
+                    <td class="px-6 py-4">{{ status_labels.get(project.status, project.status) }}</td>
                     <td class="px-6 py-4">{{ project.owner }}</td>
                     <td class="px-6 py-4">¥{{ "{:,.0f}".format(project.estimated_savings) }}</td>
                     <td class="px-6 py-4 text-right">
-                        <a class="font-medium text-emerald-700 hover:underline" href="/projects/{{ project.id }}">View</a>
+                        <a class="font-medium text-emerald-700 hover:underline" href="/projects/{{ project.id }}">查看详情</a>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="7" class="px-6 py-10 text-center text-stone-500">No projects matched your filters.</td>
+                    <td colspan="7" class="px-6 py-10 text-center text-stone-500">没有匹配当前筛选条件的项目。</td>
                 </tr>
                 {% endfor %}
             </tbody>
