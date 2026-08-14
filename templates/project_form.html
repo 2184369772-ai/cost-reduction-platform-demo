@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}{% if mode == "create" %}New Project{% else %}Edit Project{% endif %} | Cost Reduction Platform Demo{% endblock %}
+{% block content %}
+<section class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
+    <div class="flex items-center justify-between">
+        <div>
+            <p class="text-sm font-medium text-emerald-700">{% if mode == "create" %}Add project{% else %}Edit project{% endif %}</p>
+            <h2 class="mt-1 text-2xl font-semibold">{% if mode == "create" %}Create a synthetic project{% else %}Update project details{% endif %}</h2>
+        </div>
+        <a href="/projects" class="text-sm font-medium text-stone-600 hover:text-stone-900">Back to ledger</a>
+    </div>
+
+    {% if errors %}
+    <div class="mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+        <ul class="list-disc space-y-1 pl-5">
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" class="mt-6 grid gap-4 md:grid-cols-2" action="{% if mode == 'create' %}/projects/new{% else %}/projects/{{ project_id }}/edit{% endif %}">
+        <label class="space-y-2">
+            <span class="text-sm font-medium">Project Code</span>
+            <input type="text" name="project_code" value="{{ form.project_code or '' }}" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+        </label>
+        <label class="space-y-2">
+            <span class="text-sm font-medium">Title</span>
+            <input type="text" name="title" value="{{ form.title or '' }}" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+        </label>
+        <label class="space-y-2">
+            <span class="text-sm font-medium">Factory</span>
+            <select name="factory_id" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+                {% for factory in factories %}
+                <option value="{{ factory.id }}" {% if form.factory_id == factory.id %}selected{% endif %}>{{ factory.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="space-y-2">
+            <span class="text-sm font-medium">Category</span>
+            <select name="category" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+                {% for category in filters.categories %}
+                <option value="{{ category }}" {% if form.category == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="space-y-2">
+            <span class="text-sm font-medium">Status</span>
+            <select name="status" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+                {% for status in filters.statuses %}
+                <option value="{{ status }}" {% if form.status == status %}selected{% endif %}>{{ status }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="space-y-2">
+            <span class="text-sm font-medium">Owner</span>
+            <input type="text" name="owner" value="{{ form.owner or '' }}" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+        </label>
+        <label class="space-y-2">
+            <span class="text-sm font-medium">Estimated Savings</span>
+            <input type="number" min="0" step="0.01" name="estimated_savings" value="{{ form.estimated_savings or '' }}" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+        </label>
+        <label class="space-y-2">
+            <span class="text-sm font-medium">Currency</span>
+            <input type="text" name="currency" value="{{ form.currency or 'CNY' }}" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+        </label>
+        <label class="space-y-2">
+            <span class="text-sm font-medium">Start Date</span>
+            <input type="date" name="start_date" value="{{ form.start_date or today }}" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+        </label>
+        <label class="space-y-2">
+            <span class="text-sm font-medium">Target Date</span>
+            <input type="date" name="target_date" value="{{ form.target_date or today }}" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">
+        </label>
+        <label class="space-y-2 md:col-span-2">
+            <span class="text-sm font-medium">Description</span>
+            <textarea name="description" rows="5" class="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm">{{ form.description or '' }}</textarea>
+        </label>
+        <div class="md:col-span-2">
+            <button class="rounded-xl bg-emerald-700 px-5 py-3 text-sm font-medium text-white hover:bg-emerald-800">{% if mode == "create" %}Create project{% else %}Save changes{% endif %}</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
