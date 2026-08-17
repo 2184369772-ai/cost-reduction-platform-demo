@@ -7,6 +7,10 @@ Public portfolio demo for a cost reduction tracking workflow, built with a Chine
 > This repository is a public reimplementation using synthetic data.
 > It contains no proprietary code, internal data, confidential materials, or company-specific assets.
 
+## Demo Preview
+
+![降本项目管理 Demo Preview](docs/screenshots/import-preview-demo.png)
+
 ## 项目定位 | Project Positioning
 
 这个项目聚焦“纸面 / Excel 台账 -> 可运行系统”的最小闭环，主要展示：
